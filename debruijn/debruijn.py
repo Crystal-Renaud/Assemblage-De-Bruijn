@@ -26,13 +26,13 @@ import statistics
 import matplotlib.pyplot as plt
 matplotlib.use("Agg")
 
-__author__ = "Your Name"
+__author__ = "Crystal Renaud"
 __copyright__ = "Universite Paris Diderot"
-__credits__ = ["Your Name"]
+__credits__ = ["Crystal Renaud"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Your Name"
-__email__ = "your@email.fr"
+__maintainer__ = "Cerystal Renaud"
+__email__ = "crystal.renaud@orange.fr"
 __status__ = "Developpement"
 
 def isfile(path):
@@ -70,19 +70,35 @@ def get_arguments():
 
 
 def read_fastq(fastq_file):
-    pass
+    with open(fastq_file, 'r') as filling:
+        for file in filling: 
+            yield next(filling).strip() #strip pour en
+            next(filling)
+            next(filling)
 
 
 def cut_kmer(read, kmer_size):
-    pass
+    for i in range(len(read)):
+        if (i + kmer_size) <= len(read) :
+            yield read[i : (i + kmer_size)]
 
 
 def build_kmer_dict(fastq_file, kmer_size):
-    pass
+    dico = {}
+    for i in read_fastq(fastq_file): 
+        for kmer in cut_kmer(i, kmer_size):
+            if kmer in dico: 
+                dico[kmer] = dico[kmer] + 1
+            else: 
+                dico[kmer] = dico.get(kmer, 1)
+    return dico            
 
 
 def build_graph(kmer_dict):
-    pass
+    G = nx.DiGraph()
+    for kmer in kmer_dict:
+        G.add_edge(kmer[0 : -1], kmer[1: ], weight = kmer_dict[kmer])
+    return G
 
 
 def remove_paths(graph, path_list, delete_entry_node, delete_sink_node):

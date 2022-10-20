@@ -95,17 +95,25 @@ def build_kmer_dict(fastq_file, kmer_size):
 
 
 def build_graph(kmer_dict):
-    G = nx.DiGraph()
+    graph = nx.DiGraph()
     for kmer in kmer_dict:
-        G.add_edge(kmer[0 : -1], kmer[1: ], weight = kmer_dict[kmer])
-    return G
+        graph.add_edge(kmer[0 : -1], kmer[1: ], weight = kmer_dict[kmer])
+    return graph
 
 
 def remove_paths(graph, path_list, delete_entry_node, delete_sink_node):
-    pass
+    for path in path_list:
+        if not delete_entry_node :
+            path = path[1:]
+        if not delete_sink_node :
+            path = path[:-1]
+        graph.remove_nodes_from(path)
+    return graph
+
 
 def std(data):
-    pass
+    std = statistics.stdev(data)
+    return std
 
 
 def select_best_path(graph, path_list, path_length, weight_avg_list, 
@@ -143,18 +151,26 @@ def get_sink_nodes(graph):
     return node_s
 
 def get_contigs(graph, starting_nodes, ending_nodes):
-    contig  = []
+    contigs_list  = []
     for start in starting_nodes :
         for end in ending_nodes: 
-            if list(nx.all_simple_paths(graph, starting_nodes, ending_nodes)):
-                for path in list(nx.all_simple_paths(graph, starting_nodes, ending_nodes)):
-                    contig.append(path)
+            for path in nx.all_simple_paths(graph, start, end):
+                cont = path[0]
+                for node in path[1:]:
+                    cont = cont + node [-1]
+                contig_size = len(cont)
+                contigs_list.append((cont, contig_size))
+    
+    return contigs_list
                 
 
 
 def save_contigs(contigs_list, output_file):
-    pass
-
+    with open(output_file, "w") as file:
+        for i in range(len(contigs_list)):
+            file.write(">contig_" + str(i) + " len=" + str(contigs_list[i][1]) +
+             "\n" + fill(contigs_list[i][0]) + "\n")
+       
 
 def fill(text, width=80):
     """Split text with a line return to respect fasta format"""

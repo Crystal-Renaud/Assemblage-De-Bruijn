@@ -25,6 +25,7 @@ from random import randint
 import statistics
 import matplotlib.pyplot as plt
 matplotlib.use("Agg")
+import textwrap
 
 __author__ = "Crystal Renaud"
 __copyright__ = "Universite Paris Diderot"
@@ -72,7 +73,7 @@ def get_arguments():
 def read_fastq(fastq_file):
     with open(fastq_file, 'r') as filling:
         for file in filling: 
-            yield next(filling).strip() #strip pour en
+            yield next(filling).strip() #strip pour enlever 
             next(filling)
             next(filling)
 
@@ -118,10 +119,21 @@ def std(data):
 
 def select_best_path(graph, path_list, path_length, weight_avg_list, 
                      delete_entry_node=False, delete_sink_node=False):
-    pass
+
+    if std(weight_avg_list) > 0:
+        del path_list[weight_avg_list.index(max(weight_avg_list))]
+    elif std(path_length) > 0:
+        del path_list[path_length.index(max(path_length))]
+    else :
+        del path_list[randint(0, len(path_list))]
+    
+    graph = remove_paths(graph, path_list, delete_entry_node, delete_sink_node)
+    return graph
+
 
 def path_average_weight(graph, path):
-    pass
+    mean_weight = statistics.mean([d["weight"] for (u, v, d) in graph.subgraph(path).edges(data=True)])
+    return mean_weight
 
 def solve_bubble(graph, ancestor_node, descendant_node):
     pass
@@ -169,7 +181,7 @@ def save_contigs(contigs_list, output_file):
     with open(output_file, "w") as file:
         for i in range(len(contigs_list)):
             file.write(">contig_" + str(i) + " len=" + str(contigs_list[i][1]) +
-             "\n" + fill(contigs_list[i][0]) + "\n")
+             "\n" + textwrap.fill((contigs_list[i][0]), width=80) + "\n")
        
 
 def fill(text, width=80):

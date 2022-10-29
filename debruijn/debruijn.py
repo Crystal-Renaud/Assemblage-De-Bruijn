@@ -136,10 +136,29 @@ def path_average_weight(graph, path):
     return mean_weight
 
 def solve_bubble(graph, ancestor_node, descendant_node):
-    pass
+    paths = list(nx.all_simple_paths(graph, ancestor_node, descendant_node))
+    weight_avg_list = [path_average_weight(graph, i) for i in paths]
+    path_length = [len(i) for i in paths]
+    return select_best_path(graph, paths, path_length, weight_avg_list)
 
 def simplify_bubbles(graph):
-    pass
+    bubble = False 
+    for node in graph:
+        list_preds = list(graph.predecessors(node))
+        if len(list_preds) > 1:
+            for i,first_pred in enumerate(list_preds):
+                list_second_preds = list_preds[:i]+list_preds[i+1:]
+                for second_pred in list_second_preds:
+                    ancestor_node = nx.lowest_common_ancestor(graph, first_pred, second_pred)
+                    if ancestor_node:
+                        bubble = True
+                        break
+        if bubble == True:
+            break
+    if bubble:
+        graph = simplify_bubbles(solve_bubble(graph,ancestor_node, node))
+
+    return graph
 
 def solve_entry_tips(graph, starting_nodes):
     pass
